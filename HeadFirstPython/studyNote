@@ -1,0 +1,5 @@
+special note:
+
+1. 在python里字符串与int型数据直接链接会报错，必须将int型使用str()方法专成字符串。
+2. 在python中'：'用来引入与某个python控制语句（如if，else，for等）关联的代码组。
+3. 在python中，字符串是一个序列，序列是一个有序对象的集合，也即集合，故在python中字符串数据类型也可作为for语句的被遍历的对象。
