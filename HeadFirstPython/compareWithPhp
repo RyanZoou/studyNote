@@ -1,0 +1,122 @@
+此文件说明了，python基础语法与PHP的不同之处
+
+⏰ 在python中有两种除法运算符，'/'和'//'
+    1、'/' 两数相除的结果为浮点数
+    2、'//' 两数相除的结果为整数
+
+⏰ Python的字符串（相关编码问题参见 廖雪峰博客，Google浏览器已经添加标签）
+    1、由于编码问题，我们需要让非英文字符正常展示，通常需要在文件开头设置编码，常用操作：
+        #!/usr/bin/env python3  （这是为了告诉Linux/OS X系统，这是一个Python可执行程序，Windows系统会忽略这个注释；）
+        # -*- coding: utf-8 -*- （这是为了告诉Python解释器，按照UTF-8编码读取源代码，否则，你在源代码中写的中文输出可能会有乱码。）
+    2、字符串的格式化问题
+        1）在Python中，采用的格式化方式和C语言是一致的，用%实现，举例如下：
+            >>> 'Hello, %s' % 'world'
+            'Hello, world'
+            >>> 'Hi, %s, you have $%d.' % ('Michael', 1000000)
+            'Hi, Michael, you have $1000000.'
+            常见的占位符有：
+                占位符	替换内容
+                %d	    整数
+                %f	    浮点数
+                %s	    字符串
+                %x
+            其中，格式化整数和浮点数还可以指定是否补0和整数与小数的位数：
+                print('%2d-%02d' % (3, 1))
+                print('%.2f' % 3.1415926)
+            如果你不太确定应该用什么，%s永远起作用，它会把任何数据类型转换为字符串：
+                >>> 'Age: %s. Gender: %s' % (25, True)
+                'Age: 25. Gender: True'
+            有些时候，字符串里面的%是一个普通字符怎么办？这个时候就需要转义，用%%来表示一个%：
+                >>> 'growth rate: %d %%' % 7
+                'growth rate: 7 %'
+
+        2）另一种格式化字符串的方法是使用字符串的format()方法，它会用传入的参数依次替换字符串内的占位符{0}、{1}……，不过这种方式写起来比%要麻烦得多：
+            >>> 'Hello, {0}, 成绩提升了 {1:.1f}%'.format('小明', 17.125)
+            'Hello, 小明, 成绩提升了 17.1%'
+
+    3、python中，str不能直接和整数比较，必须先把str转换成整数。Python提供了int()函数来完成这件事情。
+        但是int()函数如果发现一个字符串并不是合法的数字时就会报错，程序就退出了。
+
+⏰ python中list（也即PHP中的索引数组）常见操作
+    1、定义方式：
+        classmates = ['Michael', 'Bob', 'Tracy']
+    2、获取元素数量
+        paramsNum = len(classmates)
+    3、索引访问元素
+        classmates[0] => 'Micheal'
+        classmates[1] => 'Bob'
+        classmates[-1] => 'Tracy'
+        classmates[3] => IndexError: list index out of range
+        ⏰ classmates[0:2] => ['Bob', 'Bob']
+            扩展：列表数据类型的范围取值扩展：「列表切片」
+                a = [1,2,3,4,5,6,7,8,9,0]
+                a[start:stop:step]
+                ⭕️ start：允许控制范围从哪里开始 （用于列表时，指示开始索引的值）
+                ⭕️ stop：允许控制范围从哪里结束 （用于列表时，指示到哪个索引值结束，但是不包括该索引）
+                ⭕️ step：允许控制的范围如何生成 （列表时，表示索引每次取值间隔）
+
+                ⏰：如果没有开始值，则默认从0开始            a[:4] => [1,2,3]
+                ⏰：如果没有结束值，则取列表允许的最大值      a[6:] => [6,7,8,9,0]
+                ⏰：如果没有指定步长值，则默认值为1          a[::2] => [1,3,5,7,9]
+
+
+    4、索引数组的改变
+        classmates.append('Adam') => ['Michael', 'Bob', 'Tracy', 'Adam']              #往list中追加元素到末尾
+        classmates.insert(1, 'Jack') => ['Michael', 'Jack', 'Bob', 'Tracy', 'Adam']   #把元素插入到指定的位置，比如索引号为1的位置
+        classmates.pop() {return 'Adam'} => ['Michael', 'Jack', 'Bob', 'Tracy']       #删除list末尾的元素
+        classmates.pop(1) {return 'Jack'} => ['Michael', 'Bob', 'Tracy']              #要删除指定位置的元素，用pop(i)方法，其中i是索引位置
+        classmates[1] = 'Sarah' => ['Michael', 'Sarah', 'Tracy']                      #要把某个元素替换成别的元素，可以直接赋值给对应的索引位置
+    5、list中能包含的数据结构与PHP中类似,但是操作上却很是不同
+        例如：
+         a = [1, 2, 3, 4, 5]
+         b = a;
+         print(b)  => [1, 2, 3, 4, 5]
+         b.append(6)
+         print(b)  => [1, 2, 3, 4, 5, 6]
+         print(a)  => [1, 2, 3, 4, 5, 6]
+        ⚠️：python中的直接赋值操作是 引用 共享，他们共享list，只是换了叫法⏰⏰⏰
+        真正的内容复制应当这样做：
+            b = a.copy()
+
+
+⏰ python元组的基础语法
+    1、另一种有序列表叫元组：tuple。tuple和list非常类似，但是tuple一旦初始化就不能修改，比如同样是列出同学的名字：
+        定义方式： classmates = ('Michael', 'Bob', 'Tracy')  #⚠️是小括号
+      现在，classmates这个tuple不能变了，它也没有append()，insert()这样的方法。
+      其他获取元素的方法和list是一样的，你可以正常地使用classmates[0]，classmates[-1]，但不能赋值成另外的元素。
+
+    2、️优点：因为tuple不可变，所以代码更安全。如果可能，能用tuple代替list就尽量用tuple。
+
+    3、️要点：
+        1）当你定义一个tuple时，在定义的时候，tuple的元素就必须被确定下来。
+        2）如果要定义一个空的tuple，可以写成()。
+        3）坑：当元组只有一个元素时不能写成 t = (1),因为这样做python会把小括号当作是运算符而不是定义元组，
+              所以，只有1个元素的tuple定义时必须加一个逗号,，来消除歧义，因此常定义成 t=(1,)。
+        4）⏰ 可变的tuple:
+            >>> t = ('a', 'b', ['A', 'B'])
+            >>> t[2][0] = 'X'
+            >>> t[2][1] = 'Y'
+            >>> t
+            ('a', 'b', ['X', 'Y'])
+          表面上看，tuple的元素确实变了，但其实变的不是tuple的元素，而是list的元素。tuple一开始指向的list并没有改成别的list，
+          所以，tuple所谓的“不变”是说，tuple的每个元素，指向永远不变。即指向'a'，就不能改成指向'b'，指向一个list，就不能改成指向其他对象，
+          但指向的这个list本身是可变的！理解了“指向不变”后，要创建一个内容也不变的tuple怎么做？那就必须保证tuple的每一个元素本身也不能变。
+⏰ python字典（dict）的基础语法
+    1、定义方式：
+        d = {'Michael': 95, 'Bob': 75, 'Tracy': 85}
+        >>> d['Michael'] => 95
+    2、判断键是否存在：
+        1）>>> 'Thomas' in d => False
+        2)二是通过dict提供的get()方法，如果key不存在，可以返回None，或者自己指定的value：
+            >>> d.get('Thomas')
+            >>> d.get('Thomas', -1)
+            -1
+    3、删除一个key
+        d.pop('Bob')
+        75
+        >>> d
+        {'Michael': 95, 'Tracy': 85}
+
+
+
+
