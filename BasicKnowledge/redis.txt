@@ -1,6 +1,4 @@
 
-
-
 一、Redis 的安装问题，由于官方并没有给出Windows版的，所以，我们只能去GitHub上下载微软维护的Windows版的Redis
 
     1.下载得来的压缩包加压之后，就等于安装成功了，解压的根目录就是运行环境的入口。
@@ -13,12 +11,6 @@
     卸载服务：redis-server --service-uninstall
     开启服务：redis-server --service-start
     停止服务：redis-server --service-stop
-
-
-
-
-
-
 
 三、Redis基础知识
 
