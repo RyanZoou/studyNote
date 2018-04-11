@@ -1,0 +1,112 @@
+
+
+
+一、Redis 的安装问题，由于官方并没有给出Windows版的，所以，我们只能去GitHub上下载微软维护的Windows版的Redis
+
+    1.下载得来的压缩包加压之后，就等于安装成功了，解压的根目录就是运行环境的入口。
+    2.启动命令：redis-server redis.windows.conf，出现Redis图标就表示启动成功了。
+    3.设置Redis服务，由于上面虽然启动了Redis，但是只要一关闭cmd窗口，redis就会消失。所以要把Redis设置成windows下的服务。
+        设置命令为：redis-server --service-install redis.windows-service.conf --loglevel verbose
+
+二、常用的Redis服务命令
+
+    卸载服务：redis-server --service-uninstall
+    开启服务：redis-server --service-start
+    停止服务：redis-server --service-stop
+
+
+
+
+
+
+
+三、Redis基础知识
+
+    1. Redis 数据类型 {Redis支持五种数据类型：string（字符串），hash（哈希），list（列表），set（集合）及zset(sorted set：有序集合)。};
+
+        1）String（字符串）：
+            string是redis最基本的类型，你可以理解成与Memcached一模一样的类型，一个key对应一个value。
+            string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象 。
+            string类型是Redis最基本的数据类型，一个键最大能存储512MB。
+
+            用法： SET key "value"（存），  GET key（取）
+
+        2）Hash（哈希）
+            Redis hash 是一个键值(key=>value)对集合。
+            Redis hash 是一个string类型的field和value的映射表，hash特别适合用于存储对象。
+            每个 hash 可以存储 2**32 -1 键值对（40多亿）。
+
+            用法：
+                    HMSET myhash field1 "Hello" field2 "World"（存）
+                    HGET myhash field1（取）
+                    HGET myhash field2（取）
+
+        3）List（列表）
+            Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。
+            列表最多可存储 2**32 - 1 元素 (4294967295, 每个列表可存储40多亿)。
+
+            用法：
+                    lpush runoob redis          =>  (integer) 1
+                    lpush runoob mongodb        =>  (integer) 2
+                    lpush runoob rabitmq        =>  (integer) 3
+                    lrange runoob 0 10          =>  1) "rabitmq"
+                                                    2) "mongodb"
+                                                    3) "redis"
+
+        4）Set（集合）
+            Redis的Set是string类型的无序集合。
+            集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。
+
+            用法：
+                添加一个string元素到,key对应的set集合中，成功返回1,如果元素已经在集合中返回0,key对应的set不存在返回错误。
+                    sadd key member
+
+                    sadd runoob redis           =>(integer) 1
+                    sadd runoob mongodb         =>(integer) 1
+                    sadd runoob rabitmq         =>(integer) 1
+                    sadd runoob rabitmq         =>(integer) 0
+                    smembers runoob             =>1) "rabitmq"
+                                              2) "mongodb"
+                                              3) "redis"
+
+        5）zset(sorted set：有序集合)
+            Redis zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。
+            不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。
+            zset的成员是唯一的,但分数(score)却可以重复。
+
+            用法：
+                添加元素到集合，元素在集合中存在则更新对应score
+                    zadd key score member
+
+                    zadd runoob 0 redis             => (integer) 1
+                    zadd runoob 0 mongodb           => (integer) 1
+                    zadd runoob 0 rabitmq           => (integer) 1
+                    zadd runoob 0 rabitmq           => (integer) 0
+                    ZRANGEBYSCORE runoob 0 1000     => 1) "mongodb"
+                                                       2) "rabitmq"
+                                                       3) "redis"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

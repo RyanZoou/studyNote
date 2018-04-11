@@ -1,0 +1,466 @@
+    数据库安装：
+    mysql5.6
+    1.通过命令行 执行到mysqld.exe 目录
+    2.命令行输入:mysqld -install
+    3.net start mysql
+实体完整性
+    1.1. 一张数据表，必须有一组（至少一个）字段能够确定唯一的一条记录
+    1.2. 唯一性约束
+          unique
+    1.3. 主键约束
+          primary key:主键，唯一确定一行记录的字段
+    1.4. A表与B表之间 1对多关系，在B表添加A表的主键作为外键约束 保证实体完整性
+1. 认识关系模型
+    1.1. 关系(Relation)相当于一张表
+    1.2. 实体:相当于表中的一行纪录
+    1.3. 字段(列):相当于表中的列的字段名
+2.  RDBMS (关系数据库管理系统)
+    2.1. Oracle
+    2.2. DB2
+    2.3. Sybase
+    2.4. SQL Server
+    2.5. MySQL   
+3. 数据库    
+    3.1. 一个数据库管理系统当中，包含多个数据库
+    3.2. 一个数据库包含多张表
+    3.3. 连接到mysql
+           mysql -h host -u user -p 其中在本地连接的话-h host可以省略
+    3.4. MySQL创建数据库：
+           CREATE  DATABASE `数据库名` charset=utf8
+    3.5. 删除数据库
+           DROP DATABASE `数据库名`
+    3.6. 使用数据库: use     `数据库名｀
+4. 数据表
+    4.1. 数据类型
+           4.1.1. 数字类型
+                    a. bit
+                    b. tinyint (一个字节大小的整型) 
+                    c. smallint
+                    d. mediumint
+                    e. int
+                    f. bigint
+                    g. bool 
+                    h. decimal(m,n)
+                    i. float
+                    j. double
+           4.1.2. 日期与时间
+                    a. date
+                    b. datetime
+                    c. timestamp
+                    d. time
+           4.1.3. 字符串
+                    a. char        
+                    b. varchar
+                    c. text
+                    d. enum
+                    e. blob
+
+命令行cmd 操作数据库
+进入Mysql
+    mysql -h 本地或者远程Ip(本地可以省略包括前面的 -h) -u 账户名 -p
+
+退出MYSQL
+    quit; 或者 exit;
+
+查看所有数据库
+    show databases; 
+
+查看某数据库的所有表
+    use 数据库名;
+    show tables;   
+
+修改数据库密码:
+    use mysql;
+    set password for 用户名@localhost = password('新密码'); 
+
+创建数据库
+    drop database if exists `数据库名`;
+    create database `数据库名` charset=utf8;
+   
+对数据表结构操作
+    查看表结构：
+        describe `表名`;
+
+    添加表：
+        drop table if exists `表名`;
+        create table `表名`(
+            `字段名` 类型 是否为空 primary key auto_increment,//自动增1
+            `字段名` 类型 是否为空 约束,
+            `字段名` 类型 是否为空 约束
+        );
+
+    修改表列名结构：
+        alter table `表名` modify column 要修改的列名 数据类型 是否为空 约束 default 默认值;
+         注意： 约束和default 是可选  
+
+    添加表外键约束：
+        alter table 主表 drop foreign key fk_主表_副表;
+        alter table `主表名`  add constraint fk_主表_副表 foreign key(class_id) references class_info(class_id);
+
+        注意：添加表外键约束后，在主表添加记录时，外键的值要是副表里面有的主键值。要删除副表里面的某个主键（相对主表为外键）对应的记录时，需要先删除主表里面对应的外键（相对于副表是主键）的所有记录。否则报错。
+
+        作用：外键主要作用是保证数据引用的完整性，定义外键后，不允许删除在另一个表中具有关联行的行，除非删除另一个表的关联行
+
+    删除表外键约束：
+        alter table 主表 drop forgien key fk_主表_副表;
+
+    查看外键查看表： show create table 表名
+
+    添加表字段：
+        alter table `表名` add column 列名 数据类型 是否为空 约束 default 默认值;
+        注意： 约束和default 是可选 
+
+    删除表字段：
+        alter table `表名` drop  列名;
+
+    删除某个表结构：
+        drop `表名`;
+
+数据库表数据的操作
+    数据添加：
+        insert into student(stu_name,tel,sex,birth,description)values('方煌','12345','13',1,'1995-01-04');
+
+    多个添加：
+        insert into student(stu_name,tel,sex,birth,description)
+        values('方煌','12345','13',1,'1995-01-04'),('张三','12344','16',0,'1995-01-04');
+
+    数据查询：
+        select 字段列表(*) from 表名 where 查询条件;
+
+    数据更新、修改：
+        update 表名 set 字段名='值';
+
+    数据删除：
+        delete from 表名 where 字段名='值';
+
+    常用聚合函数：
+        max(列):最大值
+        min(列):最小值
+        avg(列):平均值
+        count():计数
+        sum():求和
+    排序查询：
+        order by 列名 ASC 升序
+           select 字段名 from 表名  order by 字段名 ASC
+        order by  列名 DESC 降序 默认为升序
+           select 字段名 from 表名  order by 字段名 DESC
+    注意：查询出来的结果可以当成一张表再进行查询
+    as 别名：在字段名中将(year(now())-year(birth))这个名称改为age显示
+        select stu_id,stu_name,(year(now())-year(birth)) as age,score from student;
+
+    limit x,y 从第x（下标0开始 取y个):
+        select * from student limit 3,5; 从第4条开始 取5条
+
+    分组查询：
+    [group by `分组列`]
+    注意：对于分组的信息 可以使用 having 进行结果筛选
+    
+    select * from student where score in (select max(score) from student  group by year(birth)); 
+
+     10. 逻辑运算
+    a. and
+    b. or
+    c. not
+    d. in (集合)
+    f.某字段为空的记录  where 字段 is null
+    g. like '王%'  姓王的记录 
+
+    11.数据表的完整性
+        定义外键
+    12.两表内连接：
+        查询2班的成绩大于70的学生信息，包括 学生ID 姓名 电话 班名 专业
+        select s.stu_id,s.stu_name,s.tel,c.class_name,c.major from student as s inner join class_info as c on  s.class_id=2 and c.class_id=2 and s.score>70;
+
+        select 两表的字段 from 第一个表名 inner join 第二个表名 on 条件;
+    13.左连接：
+        select 两表的字段 from 第一个表名 left join 第二个表名 on 条件;
+        保留第一个表的所有信息，对应第二个表某些没有连接上的为空
+    14.右连接：
+        select 两表的字段 from 第一个表名 right join 第二个表名 on 条件;
+        保留第二个表的所有信息，对应第一个表某些没有连接上的为空
+
+
+    问题：
+1. 查询成绩最高的学生信息
+
+  select * from student where score=(select max(score) from student);
+
+2. 查询成绩最低的学生信息
+
+ select * from student where score=(select min(score) from student);
+
+3. 查询成绩排名在第4名到第8名之间的学生信息
+
+   select * from student  order by score DESC limit 3,5;
+
+4. 查询学生的ID，姓名，年龄，成绩
+   提示：当前时间 now(),year()获取日期时间类型数据的年份信息
+
+     select stu_id,stu_name,(year(now())-year(birth)) as age,score from student; 
+
+5. 查询年龄最大的学员信息
+6. 查询年龄最小的学员信息
+7. 按年龄分组，查询每个年龄组成绩最高的学生信息
+* 8. 查询成绩最接近平均值的学员信息
+
+注意：所以问题都要一步一步简化，先分解成几个小块然后在结合
+
+------------------------------9.19---------------------------------
+
+/* 内连接查询 查询课程ID 名称 老师ID 老师姓名*/
+
+    select c.cid,c.cname,t.tid,t.tname from course as c inner join teacher as t on c.tid=t.tid; 
+
+/*查询李老师所交的课程信息*/
+    
+    select c.cid,c.cname from course as c inner join teacher as t on c.tid=2 and t.tid=2; 
+
+/*查询没有教任何课程的老师信息*/
+
+    select t.tid,t.tname from course as c right join teacher as t on c.tid=t.tid where c.cid is null; 
+
+/*查询有教课程的老师信息*/
+
+    select t.tid,t.tname from course as c right join teacher as t on c.tid=t.tid where c.cid is not null; 
+
+-----------------------------9.20------------------------------------
+
+
+/*查询java课程的学生成绩信息（学生ID 姓名 课程名 成绩）按成绩从大到小排序*/
+select s.stu_id,stu.stu_name,c.cname,s.score from score as s,student as stu,course as c where s.stu_id=stu.stu_id and s.cid=c.cid and c.cname='java' order by s.score DESC; 
+
+/*按学生的课程平均分按大小排序，查询学生信息*/
+
+select stu.stu_id,stu.stu_name,avg(s.score) as avg from student as stu inner join score as s on stu.stu_id=s.stu_id  group by stu.stu_id order by avg(s.score) DESC;
+
+/*查询java课程的学生成绩信息（学生ID 姓名 课程名 成绩 成绩最高的学生信息*/
+select s.stu_id,stu.stu_name,c.cname,s.score from score as s,student as stu,course as c where s.stu_id=stu.stu_id and s.cid=c.cid and c.cname='java' and s.score =(select max(s.score) from score as s,student as stu,course as c where s.stu_id=stu.stu_id and s.cid=c.cid and c.cname='java'); 
+
+/*查询php课程没有成绩的学生信息*/
+select stu.stu_id,stu.stu_name,c.cname from student as stu left join score as s left join course as c on stu.stu_id=s.stu_id and s.cid=stu.stu_id where 
+
+/*查询没有有Html课程成绩的学生信息*/
+select stu.stu_id,stu.stu_name,c.cid,c.cname,s.score from student as stu inner join course as c left JOIN score as s on (stu.stu_id=s.stu_id) and (c.cid=s.cid) where c.cname='html' and s.score is null
+
+/*查询java 比html成绩高的学生信息*/
+
+select s1.stu_id,s1.stu_name,s1.cname,s1.score,s2.cname,s2.score from
+ (select stu.stu_id,stu.stu_name,c.cname,s.score from student as stu INNER JOIN course as c left JOIN score as s on (stu.stu_id=s.stu_id) and (c.cid=s.cid) where (c.cname='java') and (s.score is not null)) as s1 
+ inner join
+  (select stu.stu_id,stu.stu_name,c.cname,s.score from student as stu INNER JOIN course as c left JOIN score as s on (stu.stu_id=s.stu_id) and (c.cid=s.cid) where (c.cname='html') and (s.score is not null)) as s2 
+  on s1.stu_id=s2.stu_id where s1.score>s2.score
+
+/*查询没有选张老师的课程学生信息*/
+select stu.stu_id,stu.stu_name from student as stu where stu.stu_id not in (select s.stu_id from score as s where s.cid  in (select c.cid from course as c inner join teacher as t on c.tid=t.tid where tname like '张%'));
+
+----------------------------------mysql 函数 和选择语句 9.21------------------------------
+
+常用函数：
+    1：rand() 随机0到1 的数  若要在i ≤ R ≤ j 这个范围得到一个随机整数R ,需要用到表达式 FLOOR(i + RAND() * (j –i + 1))。可以指定在某个范围的随机整数
+    2：now() 当前日期时间 curdate()当前日期  curtime()当前时间
+    3：round() 4舍5入
+    4：year()取4位年
+    5：数字转出字符串 CAST(数字 AS CHAR) -》 select CAST(1 AS CHAR)// 转出字符1
+    6：SELECT CONCAT('a', 'b')  输出 ab
+    7：DATE_SUB('1995-1-1',interval 数值 日期类型(MONTH/YEAR/DAY/HOUR)) 从1995-1-1倒回到 interval 对于类型的数值 比如倒回 2年 ：DATE_SUB('1995-1-1',INTERVAL 2 YEAR)//1993-1-1、date_add()增加时间
+    8：FORMAT(Now(),'YYYY-MM-DD')  对时间进行格式化也可以格式化数字
+    9：SELECT AVG(column_name) FROM table_name 计算平均值
+    10：SELECT COUNT(column_name) FROM table_name 计算有多少条记录
+    11：max,min 返回记录中按某个条件筛选出最大或者最小的值 它不能返回整条记录！！
+    12：SELECT SUM(column_name) FROM table_name 返回数的列的总数
+    13：ceil()向上取整 ceil(5.1111) //取 6
+    14：floor()向下取整 floor(5.1111) //取 5
+1.选择语句 ：
+      1. if 表达式
+    if (条件,值1,值2)：条件成立，表达式取值1，否则取值2
+
+2. 定义临时变量    
+    2.1. @变量名
+    2.2. set @变量名=值
+    2.3. select..... into  @变量...  
+    2.4。变量使用 select @变量;
+3. case语句:只能用于等值判断
+    case 字段或变量
+       when 条件1 then  值1
+       when 条件i then 值i
+       ...
+       else 其它值 
+    end
+    实例：
+                /* 以文字形式显示性别2 */
+            select stu_id,stu_name,tel, 
+            case gender 
+               when 1 then '男'
+               when 0 then '女'
+            end
+            as gender
+            from student;
+
+            select id as 序号, task as 任务,
+            case dayname(s_time)
+               when 'Monday' then '星期一'
+               when 'Tuesday' then '星期二'
+               when 'Wednesday' then '星期三'
+               when 'Thurthday' then '星期四'
+               when 'Friday' then '星期五'
+               when 'Saturday' then '星期六'
+               when 'Sunday' then '星期天'
+             end as 星期 
+             from schedule; 
+----------------------------存储过程 循环语句 9.22 www mysql procedure.sql------
+
+1.存储过程：用于一系列重复使用的数据业务流程的时候使用存储过程。（把一系列处理数据的操作，打包成一个整体存储在数据库管理系统当中，类似于调用函数，去调用存储过程，复用数据操作流程（业务逻辑），提高执行效率，提高维护性.）
+
+删除：drop procedure ` 删除存储过程名`
+实例：
+        drop procedure if exists show_stu_score;
+
+        delimiter $  /*修改结束标志*/
+
+        /*创建数据存储过程 create procedure 存储过程名(参数 类型) */
+
+        /*创建 查询平均分按等级*/
+        create procedure show_stu_score(sid int)
+        /*开始*/
+        begin
+            declare grade varchar(1);/*定义局部变量 */
+            declare avgscore float;/*定义局部变量 */
+            select avg(s.score) into avgscore
+            from student as stu inner join score as s
+            on stu.stu_id=s.stu_id where stu.stu_id=sid;
+            if avgscore>=80 then
+              set grade='A';
+            elseif avgscore>=70 then
+              set grade='B';
+            elseif avgscore>=60 then/*注意elseif没有空格 */
+              set grade='C';
+            else
+              set grade='D';
+            end if;
+            select stu_id,stu_name,avgscore,grade from student where stu_id=sid; 
+        /*结束*/
+        end$ /*结束*/
+        delimiter ;
+
+        call show_stu_score(1);/*调用存储过程*/
+
+2.循环语句 
+           while....do... end while
+           repeat....until... end repeat
+           loop....  end loop
+
+
+----------------------------触发器 9.22------------------------------------
+
+触发器：与表相关联的数据对象。当一张表激活一个事件比如对表新增数据、修改、删除、对更改的值做一些相关的数据处理的时候或检查操作，触发器会被调用。
+
+注意： 1：添加一张表的数据时候，触发器只能用于处理与这张表相关其他表的数据操作
+2：mysql触发器里不能对触发器本身所属的表进行二次触发 比如在添加一张表的数据时候，不能调用触发器再去操作这张表 会报错
+3：Mysql触发器 通常用于 操作两张关联表的操作 比如 在A表添加数据，但是同时需要在B表添加数据时候，可以通过触发器。也就是在添加表A数据的时候利用触发器同时也添加表B 的数据
+
+内置方法： new 在insert时候用到  也就是 new.字段 添加的那个字段 
+           old 在update/delete时候用到  也就是 old.字段 update/delete的那个字段 
+
+语法：
+drop trigger if exists 触发器名称;
+delimiter $
+create trigger 触发器名称;
+/*是在insert/update/delete之前还是之后触发触发器*/
+after之前/before之后 insert/update/delete on 表名
+
+for each row   #这句话在mysql是固定的
+
+begin
+ /*sql 语句*/
+end;
+delimiter ;
+
+-------------------------事务、视图 account.sql、索引与优化  create_index.sql -------------------------
+1.事务：可并发执行的最小单元，多个操作是一个整体，要么索引操作同时执行成功，要么全部执行失败。（数据库引擎： MyISAM：不支持事务，用于只读程序提高性能 2.InnoDB：支持ACID事务、行级锁、并发 3.Berkeley DB：支持事务）
+
+我们当前数据库引擎 为 innoDB
+
+2.事务特性：
+        原子性：事务必须是原子工作单元（整个数据事务是不可分割的工作单位）；对于其数据修改，要么全都执行，要么全都不执行， 即 => 一组事务 要么全都成功要么全都撤回。
+        一致性： 事务在完成时，必须使所有的数据都保持一致状态 。比如商品的数量，在同时多个人购买时，所购买的商品数量应与实际商品数量相符
+        隔离性：(并发控制)由并发事务所作的修改必须与任何其它并发事务所作的修改隔离。事务查看数据时数据所处的状态，要么是另一并发事务修改它之前的状态，要么是另一事务修改它之后的状态，事务不会查看中间状态的数据。比如，同一个商品在多个人同时购买时需要保证购买的人之间有独立性，不受影响，即该事务提交前对其它事务都不可见，这通常使用锁来实现。 
+        永久性：事务完成之后，它对于系统的影响是永久性的。该修改即使出现致命的系统故障也将一直保持。
+
+3.事务：
+        开启事务：start transaction;
+        允许执行Mysql操作 commit;
+        撤销之前Mysql操作 rollback;
+
+4.实例：在存储过程中应用事务 ：通过转账实例在存储过程中使用事务
+            drop procedure if exists transfer;/*判断是否存在这个存储过程*/
+            delimiter $ /*更改结束标志*/
+            create procedure transfer(_oid int,_tid int,_amount float)/*创建存储过程*/
+            begin /*存储过程的开始*/
+                declare _balance float;/* 定义局部变量*/
+                declare _balanceo int;
+                declare _balancei int;
+                declare _error int default 0;
+                declare continue  handler for sqlexception set _error=1;/*当mysql本身执行语句错误时候发生的异常*/
+                select balance into _balance from account where id=_oid;
+                select count(*) into _balancei from account where id=_tid;
+                select count(*) into _balanceo from account where id=_oid;
+                start transaction; /*开始事务*/
+                update account set balance=balance-_amount where id=_oid;
+                update account set balance=balance+_amount where id=_tid;
+            if _oid=_tid then 
+                select '不能给本账户转账';
+                rollback; /*撤销之前的mysql操作*/
+            end if;
+            if _balancei=0 or _balanceo=0  then
+                select '账户不存在';
+                rollback;
+            end if;
+            if _error=1 then
+                select '转账出现异常';
+                rollback;
+            end if;
+            if _balance<=0 and _balance<_amount then
+                select '转账金额不足';
+                rollback;
+            else commit;
+            end if;
+
+            end$ /*存储过程的结束*/
+
+            delimiter ; /*事务运行正式执行 mysql操作*/
+
+
+
+1.视图： 把多张表的关联信息，通过关联查询，得到的数据集存放到视图里面方便查询。数据库当中并不会给视图单独存放数据，存储的还是关联查询语句。也就是说通过视图查询多张表的关联或者单独一张表的查询，只是通过视图去间接查询多张表或者单独一张表的查询。
+2.视图作用：简化多表关联查询  
+3.注意： 视图不能用于 修改 和删除 只能用于查询
+
+4.视图实例：
+            drop view if exists v_student_sc; /*删除视图*/
+            create view v_student_sc as  /*创建视图*/
+            /*以下是在视图中的查询语句*/
+            select stu.stu_id,stu.stu_name,(if(stu.sex=1,'男','女')) as sex,(year(now())-year(birth)) as age,s.score,c.cname 
+            from student as stu inner join score as s inner join course as c 
+            on stu.stu_id=s.stu_id and c.cid=s.cid; 
+
+             select * from  v_student_sc;/*使用视图*/
+
+1.索引与优化
+    1.在Mysql 中对于在创建一张表的同时 会自动根据主键、外键、唯一值来创建索引；
+    2.对哪些创建索引？对表中经常通过某个非主键字段进行筛选排序、进行查询那就需要建立索引，比如在100万条数据中，你要查询姓王的人记录，这对于名字这一字段就需要建立索引,可以大大节省查询时间
+    3.如何查看、创建和删除索引？
+            show index from 表名; /*查看*/
+            DROP INDEX 索引名 ON 表名; /*删除*/
+            CREATE INDEX 索引名 ON 表名 (字段); /*创建*/
+    4.对于已有的数据中对某个字段创建索引 之前的数据是不会根据这个索引查找的，因为这些数据已经指定存放到某个物理地址当中
+(select `gid`,`gname` from `shop_goods_attr`,`shop_goods` where `shop_goods_attr`.`gid` = `shop_goods`.`gid` and `avid`=`13`) as ;
+
+mysql> select * from `s
+` = `shop_goods`.`gid`
+Empty set (0.00 sec)
+
+mysql> select * from `s
+` = `shop_goods`.`gid`
+Empty set (0.00 sec)
+
+select * from (select * from `shop_goods_attr`,`shop_goods` where`shop_goods_attr`.`gid` = `shop_goods`.`gid` and `avid`=13) as g where avid=2;

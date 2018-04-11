@@ -1,0 +1,832 @@
+《-------------------------------------27-PHP-8.17-------------------------------------》
+1. PHP的执行原理：
+    1.1. 客户端发出http请求，请求的资源是一个PHP程序
+    1.2. 服务器端的http服务器程序(Apache,nginx,iis),接收请求，如果请求资源是php程序，调用PHP解释器，执行php文件
+    1.3. 把php的输出结果(echo的内容)写入响应正文，发送到客户端
+    echo ---> 把响应正文写入到客户端
+
+2. header函数:
+    修改http响应的头部信息,例如修改header(Content-Type: text/html;Charset=utf-8)
+        header(location:url); 重新定向到某url
+        header('Refresh:3;url=....');
+
+3. isset函数：
+    判断指定的变量是否初始化,已经初始化，返回true，但它对于初始化对象为Null，0时候也为ture
+    对于0的判断，若用empty判断会认为是空，用isset则认为不为空 
+
+4. empty
+    判断一个变量是否为空或未定义
+    对于0的判断，若用empty判断会认为是空，用isset则认为不为空
+
+5. 获取请求参数
+     4.1. $_GET 获取GET方式提交的请求参数 (从查询字符串中获取)   ，长度2kb，效率高。
+     4.2. $_POST 获取POST方式提交的请求参数 ，将数据打包到正文里面进行发送
+
+6. 使用正则表达式校验字符串
+     preg_match(正则表达式变量,验证的字符串)
+
+7. 使用内置过滤器校验变量就如正则表达式一样
+    filter_var(过滤的变量,过滤ID)    数据类型 知识点中会介绍
+8.stripslashes(htmlspecialchars($_POST['nickname']));过滤特殊字符，防止sql注入攻击
+                 htmlspecialchars 把预定义的字符 "<" （小于）和 ">" （大于）转换为 HTML 实体也就是普通符号
+                stripslashes  删除反斜杠 ‘\’该函数可用于清理从数据库中或者从 HTML 表单中取回的数据。
+             if (get_magic_quotes_gpc()){如果在Php配置文件中get_magic_quotes_gpc是开着的就不需要使用stripslashes
+      code....
+            }
+《-------------------------数据类型-------------------------》
+
+1.字符串、整数、浮点数、逻辑（boolean）、数组、对象、NULL。
+	字符串： $X='abc'
+	整数: $X=12 $x=-12 (正整数 负整数 0)
+	浮点数: $x = 2.4e3;//2400 $x = 10.365; (双精度 和 单精度)
+	逻辑: $x=true
+	数组: $x=array(1,2,3) 一维数组 
+	           	运行结果array(3) { [0]=> 1 [1]=> 2 [2]=> 3}  
+		array(array(1,2,3),array(2,3,5)) 二维数组
+2.方法：
+    var_dump() 会返回变量的数据类型和值：
+     	例子：$x = 5985;
+			var_dump($x);//int(5985)
+	filter_var(过滤的变量,过滤ID) 过滤器，如正则表达式一样
+        ID:
+	    FILTER_VALIDATE_INT 在指定的范围以整数验证值。 
+		FILTER_VALIDATE_BOOLEAN 如果是 "1", "true", "on" 以及 "yes"，则返回 true，如果是 "0", "false", "off", "no" 以及 ""，则返回 false。否则返回 NULL。 
+		FILTER_VALIDATE_FLOAT 以浮点数验证值。 
+		FILTER_VALIDATE_REGEXP 根据 regexp，兼容 Perl 的正则表达式来验证值。 
+		FILTER_VALIDATE_URL 把值作为 URL 来验证。 
+		FILTER_VALIDATE_EMAIL 把值作为 e-mail 来验证。 
+		FILTER_VALIDATE_IP 把值作为 IP 地址来验证。 
+		  例题：filter_var($var, FILTER_VALIDATE_FLOAT);
+		     <?php//在指定的整数范围验证
+			$var=300;
+            $int_options = array("options"=>
+                array("min_range"=>0, "max_range"=>256));
+                 var_dump(filter_var($var, FILTER_VALIDATE_INT, $int_options));//bool(false)
+             //var_dump($int_options["options"]);
+             //array(2) { ["min_range"]=> int(0) ["max_range"]=> int(256) } 
+
+《---------------------------------数组-28-php-array-8.18--------------------------》
+
+1.  双引号与单引号区别
+     单引号表示纯字符串，
+     双引号里的字符串，会解析变量: $var=1 echo "$vara" 输出 1a
+
+2. 定义数组
+    2.1. $arr = array();    
+    2.2. $arr = [];
+    2.3. 关联数组
+           $arr = array(
+                key1 => value1,
+                key2 => value2,
+                ....
+                keyn => valuen
+           );
+3. 数组遍历
+    3.1. count(),获取数组元素个数
+    3.2. foreach循环
+           3.2.1. 遍历索引数组 foreach(数组名  as 元素名)
+           3.2.2. 遍历关联数组 foreach(数组名 as $key=>$value) $key健名  $value建名对应的值
+4. 替代语法
+    4.1. 在php与html混合编程时，提高可读性，利于维护
+    4.2. <?php if(condition): ?>
+               html
+           <?php else: ?>
+               html
+           <?php endif; ?>
+     4.3. <?php foreach(...): ?>
+               html
+            <?php endforeach; ?>
+
+     例如：<?php foreach($person[0] as $k=>$v):?>
+                    <th><?=$k ?></th>
+                <?php endforeach; ?>
+5. 数组操作
+    5.1. array_push($arr,$arr1);$arr1数组里面的值追加到$arr数组后面
+    5.2. array_pop($arr);函数删除数组中的最后一个元素
+    * 5.3. current();返回数组中的当前元素。
+    * 5.4. next();将数组中的内部指针向前移动一位。
+    * 5.5. prev();将数组的内部指针倒回一位。
+    * 5.6. each();返回数组中当前的键／值对并将数组指针向前移动一步。
+    * 5.7. end();将数组的内部指针指向最后一个元素。
+    5.8. array_search();在数组中搜索给定的值，如果成功则返回相应的键名。
+    5.9. asort();对数组进行排序并保持索引关系。
+    5.10. arsort();对数组进行逆向排序并保持索引关系
+    5.11. array_keys();返回数组中所有的键名。
+    5.12. array_key_exists();检查给定的键名或索引是否存在于数组中。
+    5.13. array_map();将回调函数作用到给定数组的单元上。
+    5.14. array_filter(); 函数用回调函数过滤数组中的元素
+    5.15. array_merge();把一个或多个数组合并为一个数组。
+
+练习：任意给两个整数数组，要求：
+         1. 合并两个数组，并按从大到小排序,
+         2. 合并两个数组，筛选出来素数,
+
+《---------------------------------字符串-----------------------------------》
+6. 字符串 string
+    注意：mb_开头的函数处理多字节编码的字符串，用的时候一定记得指定字符集
+    提示：mb_substr在于php中是默认不被支持的我们需要在在windows目录下找到php.ini打开编辑，搜索mbstring.dll，找到;extension=php_mbstring.dll把前面的;号去掉才可以使用mb_substr函数哦。
+         mb_substr( $str, $start, $length, $encoding )
+            $str，需要截断的字符串
+            $start，截断开始处
+            $length，长度（注意，这个跟mb_strimwidth不同，1就代表一个中文字符或代表其他字符）
+            $encoding，编码，我设为 utf-8
+     6.1. strlen() 获取单字节字符串长度,
+            mb_strlen() 获取多字节字符串的长度，比如获取汉子字符串的长度
+     6.2. 获取指定位置的字符
+            单字节字符串 $str[$i]
+            对于多字节： mb_substr($a, $i,1,'utf-8')
+     6.3. substr() 获取子字符串
+            mb_substr()       
+     6.4. ucwords() 首个单词的首字符转换为大写  
+                实例：<?php
+                    echo ucwords("hello world");Hello world
+                      ?>
+         ucfirst() 每个单词的首字符转换为大写
+          实例：
+          <?php
+                echo ucfirst("hello world");// Hello world
+            ?>     
+     6.5. explode('_',str) 通过'_'符号来分割str字符串然后赋值给数组   
+     6.6. implode(''，arr)  通过''空字符符来把数组的元素合成一个字符串    
+     6.7. strtoupper() 转大写字母
+     6.8. strtolower() 转小写字母
+     6.9. strpos() 获取指定的字符在字符串中首次出现的位置(大小写敏感)
+     6.10. stripos() 获取指定的字符在字符串中首次出现的位置(大小写不敏感)
+     6.11. str_repeat() 重复指定的字符串，得到新的字符串
+     6.12. str_replace(被替换的值,替换的值,字符串,替换的次数) 用指定的字符串替换字符串中的某一部分
+ 练习：给定一个字符串，my_lovely_girl,转换成camel命名法,
+                                myLovelyGirl
+
+
+《-----------------------------------文件操作-29-php-file-8.19-------------------------------------------》
+
+	    		
+1. 文件包含,把另一个php文件加载到当前php文件，并执行
+    1.1. require: 被引入的php文件出现错误，程序报严重错误，主程序会中断
+            $persons=require 'url(文件的路径)'
+    1.2. include： 被引入的php文件出现错误，程序会报出警告，主程序不中断，继续执行
+         include有返回值，而require没有。 
+    1.3. require_once  : 被引入的文件只只引入并执行一次，再次引入不执行
+    1.4. include_once : 被引入的文件只只引入并执行一次，再次引入不执行
+
+ 2. 文件操作
+     2.1. fopen() 打开文件 ，返回文件资源
+              $file=fopen(文件路径，'a') 
+               'a'打开文件为只写。文件中的现有数据会被保留。文件指针在文件结尾开始。创建新的文件，如果文件不存在。
+               'w' 打开文件为只写。删除文件的内容或创建一个新的文件，如果它不存在。文件指针在文件的开头开始。
+               'r' 打开文件为只读。文件指针在文件的开头开始。
+     2.2. 文件读取
+            2.2.1. fgets() 读取一行，指针指向下一行
+                        $file=fopen(文件路径，'a') 
+                         fgets($file)
+            2.2.2. fgetc() 读取一个字符，指针指向下一个字符
+            2.2.3. fread($file,$length),读取二进制数据，每次读取$length个字节 
+            2.2.4. file_get_contents ($path),读取指定目录的文件，从头读到尾.
+            2.2.5. file_exists() 判断指定的文件是否存在
+            2.2.6. filemtime() 获取文件的上一次修改时间
+      2.3. 写入文件
+            2.3.1. fwrite() 把字符串写入文件，要同时上下配合 fopen()和fclose()
+            2.3.2. fputs() 同上
+     *2.4. 输出缓冲区
+            2.4.1. ob_start() 打开输出缓冲区
+            2.4.2. ob_get_contents() 获取缓冲区内的文本
+            2.4.3. ob_flush() 清空缓冲区
+            实例：
+             <?php
+                //定义php字符编码格式和内容类型
+                header('Content-Type:text/html;Charset=utf-8');
+                //要写入到此php页面中的文件路径
+                $fileName='../bufftxt/'.md5('index').'.html';
+                //创建此文件的文件时间到修改此文件的时间差，为秒
+                $term=time()-filemtime($fileName);
+                //判定文件是否存在，且时间差（缓冲过期时间小于60）
+                if(file_exists($fileName)&&($term<60)){
+                    //读取文件内容到此Php页面
+                    echo file_get_contents($fileName);
+                }else{
+                    ob_start();//打开缓冲区
+                    //为缓冲区存入文件
+                    require '../persons.php';
+                    //获取缓冲区的文件内容
+                    $contents=ob_get_contents();
+                    //将$contents写入到此文件
+                    //下面此行代码默认写入形式为只写，且写入前清空文件内容
+                    //与下面三行等价
+                    file_put_contents($fileName, $contents)
+                //  $data=fopen($fileName, 'w');
+                //  fwrite($data, $contents);
+                //  fclose($data);
+                    //关闭缓冲区
+                    ob_flush();
+                }
+             ?>
+《-------------------------------文件上传---------------------------------》
+1. 在表单中，修改请求报头,修改请求的Content-Type
+    enctype="multipart/form-data"
+       <form action="fileLoad.php" enctype="multipart/form-data" method="post">
+            <input type="file" name="file" placeholder="上传文件"/><br />
+            <input type="submit" value="上传"/>
+        </form>
+ 2. 通过系统内置变量$_FILE获取上传文件的信息,
+      (以下file表示html表单内的文件域的name属性)
+     $_FILES["file"]["name"] - 被上传文件的名称
+     $_FILES["file"]["type"] - 被上传文件的类型
+     $_FILES["file"]["size"] - 被上传文件的大小，以字节计
+     $_FILES["file"]["tmp_name"] - 存储在服务器的文件的临时副本的名称
+     $_FILES["file"]["error"] - 由文件上传导致的错误代码,大于0表示有错误
+3. move_uploaded_file()函数：移动上传的文件 ，把上传的临时文件移动到目标文件  
+
+实例：
+<?php
+    $fileName = $_FILES['file']['name'];
+    $fileType = $_FILES['file']['type'];
+    $fileSize = $_FILES['file']['size'];
+       //先判断 文件名是否合法，提高安全性
+        if(preg_match('/^\w+\.([a-zA-Z]){3,4}$/', $fileName)){
+            //判断文件类型是否是指定的文件类型
+                if($fileType=='image/jpeg'||$fileType=='image/jpg'||$fileType=='image/png'){
+                    //在文件上传到服务器时，多个用户的文件名可能相同所以要做修改 ，将
+                    //文件名通过上传的时间再加上1到100000的随机数转换成md5形成一大串字符以
+                    //png为扩展名
+                        $fileName = md5(time().mt_rand(1,100000)).'.png';
+                        //规定文件的大小 1024=1kb  
+                        if($fileSize<=1024*1024*1024){
+                            //文件上传是可能发生错误
+                                if($_FILES['file']['error']>0){
+                                    echo '文件上传错误';
+                                }else{
+                                    //上传文件到服务器的指定路径
+                                    $filePath='file/'.$fileName;
+                                    //判断文件路径是否存在
+                                    if(file_exists($filePath)){
+                                        echo '上传的文件在服务器已经存在不要重复上传！';
+                                    }else{
+                                        //将文件上传到服务器
+                                        move_uploaded_file($_FILES['file']['tmp_name'],$filePath);
+                                        echo '上传成功！';
+                                    }
+                                }               
+                        }else{
+                            echo '文件不能大于1M';
+                        }
+                }else{
+                    echo '文件类型不符合';
+                }
+                
+        }else{
+            echo '文件命名不合法';
+        }
+?>
+
+
+《------------------------------------------------会话机制 Session 和 Cookie-------------------------------》
+1. session会话机制
+    1.1. http无状态性，服务器无法找回客户端的状态信息，因此引入会话机制.
+    1.2. 首次建立会话之后，服务器会为每个客户端建立会话，会话有唯一的session id；
+    1.3. session_id会响应到客户端，以cookie形式保留在客户端浏览器当中
+    1.4. 当客户端再次请求，session_id会以请求参数发送到服务器; $_SESSION['参数名']
+    1.5. 服务器根据客户端发来的session_id,找到对应的会话，客户端就能取回之前保留在会话中的信息了。
+    1.6. 当整个浏览器关闭后， session就会被销毁，对于只关闭页面来说 不受影响
+
+2. PHP处理session
+     2.1. 手动开启会话
+            session_start()：
+            1. 每次请求，都要保证调用一次
+            2. 保证在响应之前调用，在<html>标签之前调用
+             session_id() === '' ? FALSE : TRUE; 如果id为空则说明没有开启会话
+             session_status() 这个是判断服务器状态，但是只要Php版本在5.4.0以上才可以使用
+             session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;如果相等说明已经开启会话
+
+     2.2. 使用系统变量$_SESSION
+            2.2.1. 把数据存放到会话当中: $_SESSION['key'] = $value;
+            2.2.2. 读取会话当中的信息 ：$info = $_SESSION['key']
+3. unset()删除session当中的键值 unset($_SESSION['key'])
+
+4. session_destroy() 销毁session（清除session中的所有数据） 
+
+5. Cookie      
+     5.1. 储存在用户本地客户端上的少量数据，能存放的数据空间比较小，在服务器生成cookie，cookie数据是在本地客户端的浏览器中保存着，所以每次关闭整个浏览器后，再打开浏览器会根据cookie所设定的过期时间来确保是否可以继续使用
+     5.2. 服务器设置了cookie之后，cookie会随响应传输到客户端，cookie保存在浏览器的cookie目录中
+     5.3. 在发出请求后，cookie会被发送到服务器端，服务器端接受到请求后，便可取回cookie
+     5.4. cookie
+
+6. php处理cookie
+    6.1. setcookie(设置cookie名字,值,存放的时间（秒为单位）);在服务端创建cookie，在<html>之前调用     
+    6.2. $_COOKIE 用来在服务器端取回cookie
+    6.3. 销毁cookie 如下：
+             if(isset($_COOKIE['nick_name'])) {
+                // 使cookie强行过期
+            setcookie('nick_name','',time() - 3600);本来过期时间设定在time() +3600 为了销毁 直接倒减掉一天
+            }
+    6.4。判断cookie是否存在 用 empty()或者 issert()都可以
+    
+7. Session 与 Cookie 比较：
+        1. cookie数据保存在客户端，session数据保存在服务器端。
+        2. cookie不是很安全，别人可以分析存放在本地的COOKIE并进行COOKIE欺骗,如果主要考虑到安全应当使用session
+        3.单个cookie在客户端的限制是3K，就是说一个站点在客户端存放的COOKIE不能超过3K。所以：将登陆信息等重要信息存放为SESSION;其他信息如果需要保留，可以放在COOKIE中
+作业：
+        1. 做一个简单的商品列表，要有登录功能，可以将商品加入购物车，在一段时间内（24小时内，可以完成自动登录，可以还原购物车）
+        提示：1. 每个商品信息的下面，都包含"加入购物车"按钮  (超链接) ，点击该按钮，加入购物车
+
+        2. 通过超链接传值 ,<a href="addToCart.php?id=<?=$id ?>&name=<?=$name ?>">
+
+《---------------34文件-formsafe会话机制 Session 防止表单重复提交和跨域伪造提交---------------------------》
+1. 前端验证数据，过滤非法字符
+
+2. 服务器端验证数据，过滤非法字符
+
+以上的作用：
+a. 保证数据有效
+b. 防止脚本注入，保证安全性
+
+3. 防止跨站请求伪造 CSRF
+   通过由php后台开启一个会话机制，将值返回到前台的表单里面的隐藏域，然后通过提交表单来进行另一个Php页面的验证这个隐藏域里面的值（用户并不知道这个是什么值）。这样一来就可以防止远程客户端伪造本服务器的表单进行一些不良信息的提交
+
+4. 防止表单重复提交
+
+以上的防护方法：CSRF
+加入表单令牌(token)，及令牌验证
+
+5. CSRF的步骤
+    5.1. 生成令牌，存入session
+    5.2. 表单添加隐藏域，value设置为token
+    5.3. 表单提交之后，验证token，验证之后更新token
+
+一，创建钥匙和锁 也就是 通过会话机制$_SESSION
+Tocken.php:
+<?php
+//Tocken.php 
+//创建一个常量，常量的值是不能改变的
+define('SECRET_KEY', 'Simple');
+/**
+ * 创建表单令牌
+ * 
+ * @param $formId 表单id 表单传过来的参数
+ * @return 返回token的值
+ */
+function createToken($formId)    {
+    //获取$_SESSION[$tokenSessionKey]名字
+    $tokenSessionKey = createTokenSessionKey($formId);
+    //获取$_SESSION[$tokenSessionKey]名字对应的值
+    $tokenValue = md5(time() . $formId);
+    
+    if (session_id() == '') {//判断session_start()是否开启，开启会生成已经存在的会话或者创建一个会话
+        session_start();
+    }
+    $_SESSION[$tokenSessionKey] = $tokenValue;//给对应的会话赋值
+    return $tokenValue;//返回这个$_SESSION[$tokenSessionKey]的值给前台调用的变量
+}
+
+/**
+ * 验证客户端提交的令牌是否跟服务器存储的令牌一致 
+ * 
+ * @param formId
+ * @param userToken 用户提交的令牌
+ * @return 返回true表示验证通过 
+ */
+function validateToken($formId, $userToken) {
+    //前台调用验证界面 才进入这里
+    if (session_id() == '') {
+        session_start();
+    }
+    $tokenKey = createTokenSessionKey($formId);
+    $token = $_SESSION[$tokenKey];
+    //表单第一次提交过来后的$token和$userToken是一样的
+    //在第一次提交完表单后 会调用createToken($formId);
+    //使得$_SESSION[$tokenSessionKey]里面的值在变化 但是用户$userToken一直不变所以无法重复提交表单
+    if ($token == $userToken) {
+        createToken($formId);
+        return true;
+    } 
+    return false;
+}
+/**
+ * 生成令牌的session key 也就是session的名字
+ */
+function createTokenSessionKey($formId) {
+    return md5(md5($formId) . substr(md5(SECRET_KEY), 0,10));
+}
+
+
+二， 定义一个 提交表单的php页面：
+<?php
+    session_start();
+    require 'Token.php';
+    //要是有多个表单 需要通过 表单的ID来进行传递
+    //将通过createToken('form1')来创建一把钥匙和对应的锁
+    $tockenValue=createToken('form1');//这是获得钥匙
+    ?>
+    
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        <form action="yanzheng.php" method="post">
+            <input type="text" value="" placeholder="请输出入值"/>
+             <!--把钥匙放在隐藏域中 之后提交表单通过post来获取 这把钥匙-->
+            <input type="hidden" value="<?=$tockenValue?>" name="tocken" />
+            <input type="submit" />
+        </form>
+    </body>
+</html>
+
+三，验证前台提交的表单 yanzheng.php
+<?php
+    session_start();
+    require 'Token.php';
+    //阻止表单重复提交  也可以通过这个阻止表单跨域提交
+    //调用 Token.php 里面的validateToken函数，把表单的id和隐藏域里面的value
+    //（也就是第一次创建$_SESSION[$tokenSessionKey]里面的值作为参数传到Token.php）
+    if(validateToken('form1', $_POST['tocken'])){
+        echo '验证通过！';
+    }else{
+        echo '验证失败！';
+        return;
+    }
+    ?>
+
+
+《-----------------------验证码生成- 34文件---------------------------------------》
+
+
+随机生成动态验证码：
+
+在前端通过 AddGoods.php
+<label class="field-describe" for="vcode">验证码：</label>
+                    <input type="text" id="vcode" name="vcode" style="border: solid 1px #cccccc; width: 100px; height: 30px;" />
+                    <img id="img_vcode" style="width:100px;height:30px; visibility: visible;" src="action/GetVcode.php" />
+                    可以加 js 来进行点击验证码图片刷新验证码
+
+后端 GetVcode.php
+<?php
+//指定内容
+header('Content-Type:image/png');
+// 指定字符集合
+$codeSize = 4;//4个字的验证码信息
+//4个字的验证码信息的内容
+$codes = 'abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ1234567890';
+// 1. 随机产生验证码字符串
+$vcode = '';
+for ($i = 0; $i < $codeSize; $i++) {
+    $index = mt_rand(0, strlen($codes) - 1);
+    $vcode .= $codes[$index];
+}
+// 2. 把随机生成的验证码字符串存入Session
+if(session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
+$_SESSION['verify_code'] = $vcode;
+// 3. 绘制验证码
+// 3. 1. 绘制背景也就是画板 宽度要以html给的验证码宽度一致
+$image = imagecreatetruecolor(100, 30);
+// 3.2. 绘制随机背景颜色
+//imagecolorallocate(画板, 红（0-255）, 绿（0-255）, 蓝（0-255）);
+$bgColor = imagecolorallocate($image, mt_rand(0,156), mt_rand(0,156), mt_rand(0,156));
+//为画板填充背景形状 为矩形
+//imagefilledrectangle(画板, 起始x轴位置, 起始y轴, 终点x轴长度, 终点y轴长度, $bgColor);
+imagefilledrectangle($image, 0, 0, 100, 30, $bgColor);
+//绘制弧度 
+// imagefilledarc(画板,起始x轴位置 ,起始y轴位置, 终点x轴长度, 终点y轴长度, 从什么度数开始（可以为负数）, 到什么度数结束（可以为负数）, $color, IMG_ARC_PIE);
+// 3.3. 绘制验证码字符
+$fontSize = 22;//字体的大小
+$w = 90 / strlen($vcode);//字体的宽度
+// 循环绘制每个字符 
+for ($i = 0; $i < strlen($vcode); $i++) {
+    //字体的随机颜色，字体的颜色要比背景色的rgb大
+    $color = imagecolorallocate($image, mt_rand(157,255), mt_rand(157,255), mt_rand(157,255));
+    //字体的样式 在img 里面存放的字体样式 有6中
+    $font = 'img/' . mt_rand(1,6) . '.ttf';
+    
+    // 绘制字符串
+//imagestring($image, 8, 50, 40, "hhhhh", $color);
+// imagestring(画板, 字体的大小, x轴, y轴, "hhhhh", 画笔颜色);
+    //设置字体  
+//  imagettftext(画板, 字体大小, 旋转度数, 字体的起始位置x轴位置, 字体的起始位置y轴位置, 字体颜色, 字体的样式, 字体的内容);
+    imagettftext($image, $fontSize, mt_rand(-30,30), $i * $w + 4, 25, $color, $font, $vcode[$i]);
+}
+
+// 4. 绘制干扰元素 --》线段和雪花
+for ($i = 0; $i < 5; $i++) {
+    //线段的颜色
+//  $color = imagecolorallocate(画板, 红（0-255）, 绿（0-255）, 蓝（0-255）);
+    $color = imagecolorallocate($image, mt_rand(157,255), mt_rand(157,255), mt_rand(157,255));
+//  绘制线段 imageline(画板, 开始的x轴位置, 开始的y轴位置, 终点x轴位置,终点y轴位置, 线段的颜色);
+    imageline($image, mt_rand(0, 100), mt_rand(0, 30), mt_rand(0, 100), mt_rand(0, 30), $color);
+}
+//绘制雪花
+for ($i = 0; $i < 5; $i++) {
+    $color = imagecolorallocate($image, mt_rand(157,255), mt_rand(157,255), mt_rand(157,255));
+    imagestring($image, 1, mt_rand(0, 100), mt_rand(0, 30), '*', $color);
+}
+// 将图像作为png输出到输出流
+imagepng($image);
+// 销毁内存中的图像资源
+imagedestroy($image);
+?>
+
+判断输入的验证码对错 HandleAddGoods.php
+session_start();
+// 校验验证码
+//把获取的验证码 和 $_SESSION里面的验证码转换为小写
+if (strtolower($_POST['vcode']) != strtolower($_SESSION['verify_code'])) {
+    echo '验证码错误';
+    header('Refresh:3;url=../AddGoods.php');
+    return;
+}
+
+
+
+《-------------------------php面向对象 34文件-8.29-------------------------》
+使用面向对象： 具有可维护性，重用性，健壮性
+
+静态变量：也叫静态成员，它属于类的，无论创建多少个类的实例，都共用一个静态成员，静态成员可以实例化对象  self::静态成员名 = new 类名(); 
+
+静态方法:属于一个类的，无论是创建多少这个类的实例，都共用一个静态方法
+ 通过  类::$静态方法名称 调用
+
+1. 对象: 由一组属性和行为打包成一个整体的概念信息。
+    1.1. 被人类认知（观察，感知，思考，分析，抽象）的客观存在的信息单元(Object)
+
+    1.2. 客观存在体(Object)：一系列特征（属性，行为）的整合
+
+2. 类
+    2.1. 定义相同的个体（对象），构成的抽象概念，称为类(class) 
+         也可以说成是 具有相同属性和行为的对象集合成为类
+    2.2. 特征(attribute)的构成:
+           2.2.1. 属性（property）：静态特征 （名词）
+           2.2.2. 行为 (behavior)（method）  :  动态特征  (动词)
+           * 2.2.3. 消息 (message) :外部环境针对对象的行为调用
+
+3. 类与对象的区别：
+    3.1. 对象表示具体的信息实体，类是剧有相同特征的一类（事物）信息的抽象描述(类别) ，类是对象的模板
+    3.2. 根据类，创建具体对象实例的过程，叫实例化
+    3.3. 类是对象的实例化，对象是类的抽象 如：要使用一个类必须先对这个类进行实例化，实例化后就是一个对象或者引用
+     class Person{...} $a = new Person();
+
+4. 封装 
+     将一个类的属性私有化不让外界访问。
+    4.1. 让对象对外界形成一个黑箱,外界不需要了解或知晓对象内部的构造和运行原理,只需要对对象发出消息，对象对消息做出反馈.
+    4.2. 把信息结构(属性的集合)私有化，对外界封闭 ，只有内部的行为可访问私有信息        
+    4.3. 把响应消息的行为公有化，供外界调用 
+    4.4. 对象的生命周期
+           4.4.1. 通过new关键字实例化(创建)出一个对象实例    
+           4.4.2. 对象的生存期内，属性的值会始终存在
+           4.4.3. 当对象被GC（垃圾回收机制）清理时，对象生命期结束，属性的值全部被抹掉，销毁
+
+          对象 ＝ 数据结构 ＋ 算法
+    
+          程序 ＝ 对象1 ＋ 对象2 + ... + 对象i + ... + 对象n
+5. 实例化
+    5.1. new关键字
+           将指定的类实例化为一个对象
+    5.2. 构造函数 （Constructor）
+           __construct()
+           5.2.1. 在类被实例化的时候，默认调用的函数，一般用来初始化对象
+           5.2.2. 类拥有一个默认构造函数
+《-------------------------php面向对象 36文件-8.30---------------------》   
+        构造函数：
+                在index.php文件里面：
+                    $ac1=new AirConditioner('格力空调');//实例化对象，会调用默认的构造函数
+                在AirConditioner.class.php文件里面：
+                    /**
+                 * 默认的构造函数，创建了一个类的实例化对象时候会默认调用这个构造函数
+                 * 可以进行传参，若不进行传参可以给它一个赋值__construct($name='格力')，
+                 * 多个参数逗号隔开
+                 * 在这里我传了个属性为name的参数进来进行赋值
+                 */
+                    public  function __construct($name){
+                        $this->name=$name;
+                    }
+6. __get(), __set(),属性访问器
+        __get() 和 __set()
+             /**
+             * php自带的__set()强大的函数
+             * __set(调用set传过来的属性名,调用set传过来的属性名对应的值)
+             */
+            public function __set($name,$value){
+                if(isset($this->$name)){
+                $this->$name=$value;
+                }
+            }
+            /**
+             * php自带的__get()强大的函数
+             * __get(调用get传过来得属性名并获取值返回)
+             */
+            public function __get($name){
+                if(isset($this->$name)){
+                    return  $this->$name;
+                }
+                return null;
+            }
+            在 index.php文件中
+                $ac1=new AirConditioner('格力空调');//构造函数,会调用默认的构造函数
+                //  $ac1->model=WATE;//自动调用__set函数参数为model，WATE分别作为传参中的属性名和属性名对应的值
+                //  $ac1->name;自动调用__get函数返回对应类里面存在的属性
+                    echo '品牌为:'.$ac1->name.'当前模式：'.$ac1->model=WATE;
+1. 对象间的关系
+
+  1.1. 依赖 (depandence) 在 36文件中的img有依赖的关系
+        如果A依赖于B，弱依赖关系说明B一般不单独使用，它需要在A中才会发挥作用，通常B是作为A中的方法参数存在的。如：
+        Class A{
+          public function a(B){
+
+          }
+        }
+        Class B{
+        ...
+        }
+  1.2. 关联 (associate)在 35文件中的img有关联的关系
+        如果A和B有关联，强依赖关系，关联可以是单向、双向的，那么说明A内部可能会使用到B，但是A和B本身还是独立的关系，通常B会作为A的成员变量存在。
+  1.3. 聚合 (aggregation)
+        如果A和B是聚合的，那么说明A和B是“弱拥有”的关系。聚合是关联关系的一种特例，它体现的是整体与部分的关系。此时整体与部分之间是可分离的，它们可以具有各自的生命周期，部分可以属于多个整体对象，也可以为多个整体对象共享。比如 公司与部门 部门与员工
+        在UML中，聚合通常是使用空心菱形+实线箭头来表示。
+  1.4. 组合 (composite)
+        组合也是关联关系的一种特例，这种关系比聚合更强，也称为强聚合。它同样体现整体与部分间的关系，但此时整体与部分是不可分的，整体的生命周期结束也就意味着部分的生命周期结束，比如人和人的大脑。
+2. instanceof 关键字 :判断指定的对象是否是某个类的实例
+
+    作业：构造以下类 并建立类 完成类关系图和时序图
+    Employee雇员
+    Company公司
+    Department部门
+    1. 一个公司由多个部门构成，一个部门由多个雇员构成
+    2. 每个部门可以添加新的雇员
+    3. 公司可以添加新部门
+    4. 公司可以保存所有部门信息
+    5. 部门可以保存所有雇员信息
+
+《-----------------------------php 38文件 9.1---------------------------------》
+
+38文件：通过对一个公司进行员工信息的添加和获取某个员工的信息。
+
+1.魔术函数 __autoload() :可以对当前引用此方法的文件中自动加载 有创建一个类的实例化对象 进行自动引入此类的文件，自动形成一个  'use 类文件的路径'
+            <?php
+            //__autoload，魔术函数 某些文件需要加载一个或多个类的文件时候，会反复通过require来引入，这样会很麻烦，所以通过这个自动加载的魔术函数来代替通过require或者include引入文件，简化了代码量
+            function __autoload($className){
+                $useClass='../'.str_replace('\\', '/', $className).'.class.php';
+                if(file_exists($useClass)){
+                    require_once $useClass;
+                }
+            }
+  __call(方法，数组);方法重载
+        调用一个不存在的而方法会自动执行__call，传参为方法名，如果方法中有带参数则会被一个数组接收。比如： $m->date(array())//调用date不存在的方法 则会自动调用__call(date,array(方法中的参数，也可以是个数组)
+ 2.命名空间 namespace:
+        namespace Company;//引入命名空间，防止在引入不同文件中的类的时候有相同的类名，发生致命错误 ,只需要定义这个类在哪个上级文件中就行了 如 department 这个类在 Company文件目录中 就用此定义
+
+3.静态属性、静态方法 使用this去访问无效
+   3.1 static 定义静态成员或者静态方法:它是存放在内存的堆区（在内存中允许程  序存放一个空间），可以存放到程序结束才释放内存
+   3.2静态属性：
+            访问是通过  类::$静态成员名称（self::$静态成员名称 这个只能在本身类里面使用） ，它只能被类或者静态方法使用。
+   3.3静态方法：
+            只能调用静态的属性  通过  类::$静态方法名称 调用
+
+《-----------------------------继承与多态 9.8 文件40------------------------------》
+1.继承：子类继承父类，继承父类的属性和方法，同时也可以重写父类的方法；
+（泛化）父类（基类）：有着共同特性的多类事物，进行再抽象成一个更具广泛的类，这个类就是父类
+2.子类（派生类）：从某个类衍生出来更有具体特征的类，派生的类保留父类的所有属性和方法
+3.表示父类和子类的术语：父类和子类、超类和子类、基类和派生类，他们表示的是同一个意思。
+4.运用继承可以使提高代码重用、可扩展、可维护。
+
+5.复用父类构造函数
+    parent::__construct();
+       public function __construct($name, $age,$scale){
+        //子类调用父类的构造方法，给父类的属性赋值
+        parent::__construct($name, $age);
+        $this->scale=$scale;
+       }
+
+6.访问修饰符：
+        public: 公有的，类内部和外部都能访问
+        protected:受保护，类的内部和子类中可以访问
+        private:私有，只能在类的内部访问
+        default：即不加任何访问修饰符，通常称为“默认访问模式“。该模式下，只允许在同一个包中进行访
+　　　　　问。
+
+
+7.方法重写（override）方法覆盖
+        子类继承父类，重写父类的方法，方法名相同，参数列表所带的参数个数一致
+8.多态：
+    方法重写在不同类，是实现多态的必要条件。
+    定义：不同类别的对象实例，对同一个方法调用(消息)，产生不同的响应或操作，叫多态性
+    作用：降低系统间的耦合度，降低类与类之间的耦合，提高可维护性。
+
+9. 抽象类与抽象方法
+     9.1. 抽象方法：没有方法体，只有方法名和参数，方法不能被实例化，具体的实现由子类重写
+     9.2. 抽象类不能被实例化，只能被继承
+     9.3. 类中有抽象方法，那么类必须被声明成抽象类
+
+10.接口：interface 只能包含抽象方法（抽象方法不能被实例化），它是一个特殊的抽象类，没有构造方法
+    1.接口必须通过类来实现(implements)它的抽象方法，然后再实例化类。类实现接口的关键字为implements，如果一个类不能实现该接口的所有抽象方法，那么这个类必须被定义为抽象方法
+    2.一个类可以实现多个接口
+    3.接口可以被多继承，也就是说一个接口可以继承多个接口
+    4.接口一般用来做复杂应用程序，为了设计模块间的低耦合关系
+
+
+<------------------------------json--------------------------------->
+
+json_encode(关联数组) 将关联数组转换成json对象 
+json_decode(json对象，true) 将Json对象转换成关联数组
+
+json 对象： [{"a1"=>"aa","b1"=>"bb"},{...}]
+
+<---------------------------分页查询 9.29 -------------------------->
+实例在:WanczyProject look_reiv_address.php中
+1. 查询总页数
+    select ceil(count(*)/$pageSize) from `tablename`
+    ceil是当数量为5.1~6之间 它都会取6 这个值
+2. 分页查询数据
+
+    设：$pageSize = n (n >= 1); 每页数量
+
+          $pn = m (m >= 1); 当前页码
+
+     so: 
+           select * from `table_name`
+           limit (($pn -1 ) * $pageSize) , $pageSize
+
+ 3. 分页输出
+     (1). 确定总共页数
+     (2). 循环输出页码 (for (...; $i < $pageCount;...;))
+     (3). 确定页码超链接的href以及innerHTML
+     (4). 判断当前页，以样式加以区分   
+4. 分页查询优化示例：
+select * from reicv_address where id not in (select id from (select id from reicv_address limit 0, $offset) as r) limit $pageSize
+
+<---------------------------无限级分类 9.29 -------------------------->
+
+1. 按层级结构整理类别数据
+    在定义类别表时  cid记录id  cname类别名  parent_id类别父亲id
+    通常父亲的 parent_id 都为0  
+    1.1. 递归整理 （在内存中整理） 这种方法效率低 
+           1.1.1. 先获取所有类别数据
+           1.1.2. 对获取的类别数据，按级别递归整理顺序
+
+           相关代码：
+            /**
+             * 对原始类别列表，按层级整理
+             * 递归方法
+             * @param array $originalList 查询表中所以记录存放到这个数组中是二维的      
+             * @param number $pid  一级类别的parent_id       
+             * @param number $level   层次        
+             */
+            private function sortOut($originalList, $pid = 0, $level = 0) {
+                $sortOutList = array ();
+                foreach ( $originalList as $ctgr ) {
+                    if ($ctgr ['parent_id'] == $pid) {//判断记录是否为一级类别
+                        $ctgr ['cname'] = str_repeat ( '--', $level ) . $ctgr ['cname'];//重复写入-- 写$level次 在加上类别名
+                        $ctgr ['level'] = $level;//写入的次数放在 数组的level字段中
+                        //将得到的一条记录也就是数组放到新定义数组中
+                        array_push ( $sortOutList, $ctgr );
+                        //递归
+                        $childList = $this->sortOut ( $originalList, $ctgr ['cid'], $level + 1 );
+                        //合并数组
+                        $sortOutList = array_merge ( $sortOutList, $childList );
+                    }
+                }
+                return $sortOutList;
+            }
+            最后输出结果 ：
+            电器  
+            --消费类电子
+            --家电 
+            ----冰箱
+            服装 
+            -- 男装 
+            ----男士夹克 
+            --女装 
+            --童装 
+            玩具 
+    1.2. 类别表设置path字段 (在数据库中，用SQL语句完成) 这种方法效率高 
+            表字段变为  cid记录id  cname类别名  parent_id类别父亲id path 0-父亲id-自己的cid
+            通常父亲的 parent_id 都为0 path 0-自己的cid
+           select * from shop_category order by path; 通过此排序可以获得如下例子的顺序
+           通过 path 可以对这个字段做优化 建立索引，加快排序速度
+           create index 索引名 on 表名
+           例子在 CategoryDemo文件中 addCategory方法中
+
+    例如：
+    电器  0-2
+    --消费类电子 0-2-5
+    --家电  0-2-6
+    ----冰箱 0-2-6-7
+    服装 0-3
+    -- 男装 0-3-11
+    ----男士夹克 0-3-11-14
+    --女装 0-3-12
+    --童装 0-3-13
+    玩具 0-6
+
+2. 添加类别数据
+    2.1.  添加类别数据，生成path字段值，更新之
+    2.2.  步骤：
+           a. 新增
+           b. 获取最大id
+           c. 查询父类的path
+           d. 构造新增类别的path
+           e. 更新
+
+3. 查询指定类别及其所有子类别
+    select * from shop_category where path like '0-3%'
+
+    delete from shop_category where path like '0-2-5%' 
